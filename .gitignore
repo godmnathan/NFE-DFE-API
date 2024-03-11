@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Certificates ###
+*.p12
+*.pfx
