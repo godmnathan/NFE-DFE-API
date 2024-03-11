@@ -18,7 +18,7 @@ import br.com.swconsultoria.nfe.schema.envConfRecebto.TEnvEvento;
 import br.com.swconsultoria.nfe.schema.envConfRecebto.TRetEnvEvento;
 import br.com.swconsultoria.nfe.util.ManifestacaoUtil;
 import com.financeiro.nfedfe.entity.Empresa;
-import com.financeiro.nfedfe.entity.NotaEntrada;
+import com.financeiro.nfedfe.entity.NotasFiscais;
 import com.financeiro.nfedfe.exception.SistemaException;
 import com.financeiro.nfedfe.repository.EmpresaRepository;
 import com.financeiro.nfedfe.util.ConfiguracoesNFE;
@@ -36,14 +36,14 @@ import static com.financeiro.nfedfe.util.CompactaDescompactaXML.compactarXML;
 
 @Service
 @Slf4j
-public class DistribuicaoService {
+public class DistNfService {
 
     private final EmpresaRepository empresaRepository;
-    private final NotaEntradaService notaEntradaService;
+    private final NfService nfService;
 
-    public DistribuicaoService(EmpresaRepository empresaRepository, NotaEntradaService notaEntradaService) {
+    public DistNfService(EmpresaRepository empresaRepository, NfService nfService) {
         this.empresaRepository = empresaRepository;
-        this.notaEntradaService = notaEntradaService;
+        this.nfService = nfService;
     }
 
     public void consultaNotasDist() throws JAXBException, NfeException, CertificadoException, IOException {
@@ -56,7 +56,7 @@ public class DistribuicaoService {
 
         ConfiguracoesNfe configuracao = ConfiguracoesNFE.criarConfiguracao(empresa);
         List<String> ListaNotasManifestar = new ArrayList<>();
-        List<NotaEntrada> ListaNotasSalvar = new ArrayList<>();
+        List<NotasFiscais> ListaNotasSalvar = new ArrayList<>();
 
         boolean verificaNotas = true;
 
@@ -79,11 +79,11 @@ public class DistribuicaoService {
         }
 
         empresaRepository.save(empresa);
-        notaEntradaService.salvarNotaEntrada(ListaNotasSalvar);
+        nfService.salvarNf(ListaNotasSalvar);
         manifestaListaNotas(ListaNotasManifestar,empresa,configuracao);
     }
 
-    private static void populaLista(Empresa empresa, RetDistDFeInt retornoConsulta, List<String> ListaNotasManifestar, List<NotaEntrada> ListaNotasSalvar) throws IOException, JAXBException {
+    private static void populaLista(Empresa empresa, RetDistDFeInt retornoConsulta, List<String> ListaNotasManifestar, List<NotasFiscais> ListaNotasSalvar) throws IOException, JAXBException {
         for (RetDistDFeInt.LoteDistDFeInt.DocZip doc : retornoConsulta.getLoteDistDFeInt().getDocZip()) {
             String xml = XmlNfeUtil.gZipToXml(doc.getValue());
             log.info("Xml: " + xml);
@@ -98,15 +98,15 @@ public class DistribuicaoService {
                     break;
                 case "procNFe_v4.00.xsd":
                     TNfeProc nfe = XmlNfeUtil.xmlToObject(xml, TNfeProc.class);
-                    NotaEntrada notaEntrada = new NotaEntrada();
-                    notaEntrada.setChave(nfe.getNFe().getInfNFe().getId().substring(3));
-                    notaEntrada.setEmpresa(empresa);
-                    notaEntrada.setSchema(doc.getSchema());
-                    notaEntrada.setCnpjEmitente(nfe.getNFe().getInfNFe().getEmit().getCNPJ());
-                    notaEntrada.setNomeEmitente(nfe.getNFe().getInfNFe().getEmit().getXNome());
-                    notaEntrada.setValor(new BigDecimal(nfe.getNFe().getInfNFe().getTotal().getICMSTot().getVNF()));
-                    notaEntrada.setXml(compactarXML(xml));
-                    ListaNotasSalvar.add(notaEntrada);
+                    NotasFiscais notasFiscais = new NotasFiscais();
+                    notasFiscais.setChave(nfe.getNFe().getInfNFe().getId().substring(3));
+                    notasFiscais.setEmpresa(empresa);
+                    notasFiscais.setSchema(doc.getSchema());
+                    notasFiscais.setCnpjEmitente(nfe.getNFe().getInfNFe().getEmit().getCNPJ());
+                    notasFiscais.setNomeEmitente(nfe.getNFe().getInfNFe().getEmit().getXNome());
+                    notasFiscais.setValor(new BigDecimal(nfe.getNFe().getInfNFe().getTotal().getICMSTot().getVNF()));
+                    notasFiscais.setXml(compactarXML(xml));
+                    ListaNotasSalvar.add(notasFiscais);
                     break;
                 default:
                     break;
@@ -136,8 +136,6 @@ public class DistribuicaoService {
                         + retorno.getCStat() + " - "
                         + retorno.getXMotivo());
             }
-
         }
     }
-
 }

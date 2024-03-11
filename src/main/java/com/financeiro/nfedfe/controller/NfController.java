@@ -1,8 +1,8 @@
 package com.financeiro.nfedfe.controller;
 
-import com.financeiro.nfedfe.entity.NotaEntrada;
-import com.financeiro.nfedfe.service.DistribuicaoService;
-import com.financeiro.nfedfe.service.NotaEntradaService;
+import com.financeiro.nfedfe.entity.NotasFiscais;
+import com.financeiro.nfedfe.service.DistNfService;
+import com.financeiro.nfedfe.service.NfService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,23 +10,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/notaEntrada")
+@RequestMapping("/api/v1/Nf")
 @Slf4j
-public class NotaEntradaController {
-    private final NotaEntradaService notaEntradaService;
-    private final DistribuicaoService distribuicaoService;
+public class NfController {
+    private final NfService nfService;
+    private final DistNfService distNfService;
 
-    public NotaEntradaController(NotaEntradaService notaEntradaService, DistribuicaoService distribuicaoService) {
+    public NfController(NfService nfService, DistNfService distNfService) {
 
-        this.notaEntradaService = notaEntradaService;
-        this.distribuicaoService = distribuicaoService;
+        this.nfService = nfService;
+        this.distNfService = distNfService;
     }
 
     @PostMapping
-    public ResponseEntity<?> salvarNotaEntrada(@RequestBody NotaEntrada notaEntrada){
+    public ResponseEntity<?> salvarNotaEntrada(@RequestBody NotasFiscais notasFiscais){
         try{
-            notaEntradaService.salvarNotaEntrada((List<NotaEntrada>) notaEntrada);
-            return ResponseEntity.ok(notaEntrada);
+            nfService.salvarNf((List<NotasFiscais>) notasFiscais);
+            return ResponseEntity.ok(notasFiscais);
         }
         catch (Exception e){
             log.info("Erro ao salvar Nota Entrada: ",e);
@@ -37,7 +37,7 @@ public class NotaEntradaController {
     @GetMapping(value = "consulta")
     public ResponseEntity<?> consultaNotasDist(){
         try{
-            distribuicaoService.consultaNotasDist();
+            distNfService.consultaNotasDist();
             return ResponseEntity.ok(listarNotaEntradas());
         } catch (Exception e) {
             log.error("Erro ao listar as notas");
@@ -48,7 +48,7 @@ public class NotaEntradaController {
     @GetMapping
     public ResponseEntity<?> listarNotaEntradas(){
         try{
-            return ResponseEntity.ok(notaEntradaService.listarNotas());
+            return ResponseEntity.ok(nfService.listarNf());
         }
         catch (Exception e){
             log.info("Erro ao listar notaEntradas: ",e);
@@ -59,12 +59,11 @@ public class NotaEntradaController {
     @GetMapping(value = "{id}")
     public ResponseEntity<?> listarNotaEntradaById(@PathVariable("id") Long idNota){
         try{
-            return ResponseEntity.ok(notaEntradaService.listarNotaById(idNota));
+            return ResponseEntity.ok(nfService.listarNfById(idNota));
         }
         catch (Exception e){
             log.info("Erro ao listar notaEntrada: ",e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
 }

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Table(name = "IL_NOTA_NACIONAL")
 @SequenceGenerator(name = "SeqNotaEntrada", sequenceName = "SEQ_NOTA_ENTRADA", allocationSize = 1)
 @Data
-public class NotaEntrada {
+public class NotasFiscais {
 
     @Id
     @GeneratedValue(generator = "SeqNotaEntrada", strategy = GenerationType.SEQUENCE)
