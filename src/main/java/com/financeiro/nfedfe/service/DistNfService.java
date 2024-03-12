@@ -61,16 +61,28 @@ public class DistNfService {
         boolean verificaNotas = true;
 
         while(verificaNotas) {
-            RetDistDFeInt retornoConsulta = Nfe.distribuicaoDfe(configuracao
-                    , PessoaEnum.JURIDICA, empresa.getCpfCnpj(), ConsultaDFeEnum.NSU, ObjetoUtil.verifica(empresa.getNsu()).orElse("000000000000000"));
+            RetDistDFeInt retornoConsulta = null;
 
-            if (!retornoConsulta.getCStat().equals(StatusEnum.DOC_LOCALIZADO_PARA_DESTINATARIO)) {
-                if (retornoConsulta.getCStat().equals(StatusEnum.CONSUMO_INDEVIDO)) {
+            try {
+                //erro aqui
+                retornoConsulta = Nfe.distribuicaoDfe(configuracao
+                        , PessoaEnum.JURIDICA
+                        , empresa.getCpfCnpj()
+                        , ConsultaDFeEnum.NSU
+                        , ObjetoUtil.verifica(empresa.getNsu()).orElse("000000000000000"));
+            } catch (Exception e) {
+                log.error("Error in Nfe.distribuicaoDfe", e);
+            }
+
+            if (!retornoConsulta.getCStat().equals(StatusEnum.DOC_LOCALIZADO_PARA_DESTINATARIO.getCodigo())) {
+                if (retornoConsulta.getCStat().equals(StatusEnum.CONSUMO_INDEVIDO.getCodigo())) {
                     break;
                 } else {
-                    new SistemaException("Erro ao pesquisar notas: " + retornoConsulta.getCStat() + " - " + retornoConsulta.getXMotivo());
+                    throw new SistemaException("Erro ao pesquisar notas: " + retornoConsulta.getCStat() + " - " + retornoConsulta.getXMotivo());
                 }
             }
+
+
 
             populaLista(empresa, retornoConsulta, ListaNotasManifestar, ListaNotasSalvar);
 

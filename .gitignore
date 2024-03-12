@@ -33,4 +33,7 @@ build/
 
 ### Certificates ###
 *.p12
-*.pfx 
+*.pfx
+
+### Sentitive Information ###
+*.properties

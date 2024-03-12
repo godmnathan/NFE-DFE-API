@@ -22,7 +22,7 @@ public class NfController {
         this.distNfService = distNfService;
     }
 
-    @PostMapping
+    /*@PostMapping
     public ResponseEntity<?> salvarNotaEntrada(@RequestBody NotasFiscais notasFiscais){
         try{
             nfService.salvarNf((List<NotasFiscais>) notasFiscais);
@@ -32,7 +32,7 @@ public class NfController {
             log.info("Erro ao salvar Nota Entrada: ",e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-    }
+    }*/
 
     @GetMapping(value = "consulta")
     public ResponseEntity<?> consultaNotasDist(){
@@ -40,7 +40,7 @@ public class NfController {
             distNfService.consultaNotasDist();
             return ResponseEntity.ok(listarNotaEntradas());
         } catch (Exception e) {
-            log.error("Erro ao listar as notas");
+            log.error("Erro ao listar as Notas: "+e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -51,7 +51,7 @@ public class NfController {
             return ResponseEntity.ok(nfService.listarNf());
         }
         catch (Exception e){
-            log.info("Erro ao listar notaEntradas: ",e);
+            log.info("Erro ao listar as Notas Fiscais: ",e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -62,7 +62,7 @@ public class NfController {
             return ResponseEntity.ok(nfService.listarNfById(idNota));
         }
         catch (Exception e){
-            log.info("Erro ao listar notaEntrada: ",e);
+            log.info("Erro ao listar a Nota Fiscal: ",e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
